@@ -13,9 +13,13 @@ def csc(x):
 def cot(x):
     return 1 / math.tan(x)
 
+def sign(x):
+    return math.copysign(1, x)
+
 math.sec = sec
 math.csc = csc
 math.cot = cot
+math.sign = sign
 
 def get_float(prompt):
     return float(input(prompt))
@@ -59,7 +63,8 @@ doubt, add more parenthesis. (sinx^2 will parse as sin(x)^2, for example, and
 sin^2 x will probably crash the program)
 EXAMPLE: y(x) = 2sinx
 EXAMPLE: y(x) = ln(0.5x^2)
-EXAMPLE: y(x) = (x - 3)(x)(x + 2) / 10""")
+EXAMPLE: y(x) = (x - 3)(x)(x + 2) / 10
+EXAMPLE: y(x) = sqrt(4 - (abs(fmod(x, 4)) - 2)^2) * sign(fmod(x, 8) - 4sign(x))""")
     fn = get_fn()
 
 
@@ -97,7 +102,7 @@ coords = []
 slopes = []
 
 # window info for console output
-win_w = 79
+win_w = 78
 win_h = 23
 win_cx = math.floor(win_w / 2)
 win_cy = math.floor(win_h / 2)
