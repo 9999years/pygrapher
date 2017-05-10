@@ -42,6 +42,9 @@ def eval_fn(fn, x):
     except ValueError:
         # negative number in a log or root probably
         ret = float("nan")
+    if ret.imag != 0:
+        # imaginary; only graph real part of function
+        ret = float("nan")
     return ret
 
 print("enter a formula to graph in terms of x, or HELP for help")
@@ -121,14 +124,28 @@ for i in range(0, win_w):
 
 # initialize a 2d list of win_h lines of strings each win_w wide
 graph = []
-graph.append("─" * win_w)
+
+# border character
+t_border_char  = "═" # "─"
+s_border_char  = "║" # "│"
+tl_border_char = "╔" # "┌" "╭"
+tr_border_char = "╗" # "┐" "╮"
+br_border_char = "╝" # "┘" "╯"
+bl_border_char = "╚" # "└" "╰"
+lc_border_char = "╟" # "├"
+rc_border_char = "╢" # "┤"
+tc_border_char = "╤" # "┬"
+bc_border_char = "╧" # "┴"
+
+graph.append(t_border_char * win_w)
 for i in range(0, win_h - 2):
-    graph.append("│" + " " * (win_w - 1) + "│")
-graph.append("─" * win_w)
-graph = place_at_coordinate("┌", 0,     win_h - 1, graph)
-graph = place_at_coordinate("┐", win_w, win_h - 1, graph)
-graph = place_at_coordinate("┘", win_w, 0,         graph)
-graph = place_at_coordinate("└", 0,     0,         graph)
+    graph.append(s_border_char + " " * (win_w - 1) + s_border_char)
+graph.append(t_border_char * win_w)
+graph = place_at_coordinate(tl_border_char, 0,     win_h - 1, graph)
+graph = place_at_coordinate(tr_border_char, win_w, win_h - 1, graph)
+graph = place_at_coordinate(br_border_char, win_w, 0,         graph)
+graph = place_at_coordinate(bl_border_char, 0,     0,         graph)
+
 
 for i in range(0, win_w):
     # line for x axis
@@ -136,21 +153,26 @@ for i in range(0, win_w):
     # if we have a number to plot, plot it
     if not math.isnan(coords[i]):
         char = "●"
+        # find y-coord in grid to put graph block, and error to see if it’s in
+        # the top or bottom half of the cell
+        # weird assignment order prevents calling scale() twice
+        # note that 0 <= floor(x) <= x
+        error = scale(coords[i], range_min, range_max, 0, win_h)
+        height = math.floor(error)
+        error -= height
         if not math.isnan(slopes[i]):
             if   abs(slopes[i]) >= 2 and slopes[i - 1] >= 0:
                 char = "▌"
             elif abs(slopes[i]) >= 2 and slopes[i - 1] < 0:
                 char = "▐"
             elif slopes[i] >= 0.75:
-                # char = "╱"
                 char = "▞"
             elif slopes[i] <= -0.75:
                 char = "▚"
-            # elif slopes[i - 1] >= 0:
-                # char = "▄"
-            else: # slopes[i - 1] <= 0
+            elif error < 0.5:
+                char = "▄"
+            else: # error >= 0 and error < 0.5
                 char = "▀"
-        height = math.floor(scale(coords[i], range_min, range_max, 0, win_h))
         if height > 0 and height < win_h:
             graph = place_at_coordinate(char, i, height, graph)
 
@@ -167,10 +189,10 @@ for i in range(range_min, range_max):
     graph = place_at_coordinate("┼", win_cx, y_tick, graph)
     graph = place_at_coordinate(str(i), win_cx + 2, y_tick, graph)
 
-graph = place_at_coordinate("├", 0,      win_cy,    graph)
-graph = place_at_coordinate("┤", win_w,  win_cy,    graph)
-graph = place_at_coordinate("┬", win_cx, win_h - 1, graph)
-graph = place_at_coordinate("┴", win_cx, 0,         graph)
+graph = place_at_coordinate(lc_border_char, 0,      win_cy,    graph)
+graph = place_at_coordinate(rc_border_char, win_w,  win_cy,    graph)
+graph = place_at_coordinate(tc_border_char, win_cx, win_h - 1, graph)
+graph = place_at_coordinate(bc_border_char, win_cx, 0,         graph)
 
 # origin
 graph = place_at_coordinate("┼", win_cx, win_cy, graph)
