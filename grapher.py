@@ -121,10 +121,13 @@ for i in range(0, win_w):
 
 # initialize a 2d list of win_h lines of strings each win_w wide
 graph = []
+# put a row of lines above and below it
 graph.append("─" * win_w)
 for i in range(0, win_h - 2):
     graph.append("│" + " " * (win_w - 1) + "│")
 graph.append("─" * win_w)
+
+# corner graphics
 graph = place_at_coordinate("┌", 0,     win_h - 1, graph)
 graph = place_at_coordinate("┐", win_w, win_h - 1, graph)
 graph = place_at_coordinate("┘", win_w, 0,         graph)
@@ -135,6 +138,7 @@ for i in range(0, win_w):
     graph = place_at_coordinate("─", i, win_cy, graph)
     # if we have a number to plot, plot it
     if not math.isnan(coords[i]):
+        # fallback character in case fn isnt differentiable
         char = "●"
         if not math.isnan(slopes[i]):
             if   abs(slopes[i]) >= 2 and slopes[i - 1] >= 0:
@@ -154,26 +158,32 @@ for i in range(0, win_w):
         if height > 0 and height < win_h:
             graph = place_at_coordinate(char, i, height, graph)
 
+# y-axis
 for i in range(0, win_h):
     graph = place_at_coordinate("│", win_cx, i, graph)
 
+# x-axis ticks
 for i in range(domain_min, domain_max):
     x_tick = math.floor(scale(i, domain_min, domain_max, 0, win_w))
     graph = place_at_coordinate("┼", x_tick, win_cy, graph)
     graph = place_at_coordinate(str(i), x_tick, win_cy + 1, graph)
 
+# y-axis ticks
 for i in range(range_min, range_max):
     y_tick = math.floor(scale(i, range_min, range_max, 0, win_h))
     graph = place_at_coordinate("┼", win_cx, y_tick, graph)
     graph = place_at_coordinate(str(i), win_cx + 2, y_tick, graph)
 
+# joints for where the axis meet the border
 graph = place_at_coordinate("├", 0,      win_cy,    graph)
 graph = place_at_coordinate("┤", win_w,  win_cy,    graph)
 graph = place_at_coordinate("┬", win_cx, win_h - 1, graph)
 graph = place_at_coordinate("┴", win_cx, 0,         graph)
 
-# origin
+# origin cross mark
+# could also be ∅?
 graph = place_at_coordinate("┼", win_cx, win_cy, graph)
 
+# print from end to beginning of array (so the graph isn’t flipped)
 for j in range(win_h - 1, -1, -1):
     print(graph[j])
